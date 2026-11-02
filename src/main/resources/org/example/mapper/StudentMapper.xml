@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.StudentMapper">
+    <insert id="insert">
+     insert into  student
+     (name, no, gender, phone, id_card, is_college, address, degree, graduation_date, clazz_id, create_time, update_time)
+     VALUES (#{name},#{no},#{gender},#{phone},#{idCard},#{isCollege},#{address},#{degree},#{graduationDate},#{clazzId},#{createTime},#{updateTime})
+
+
+    </insert>
+    <update id="update">
+        update student
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="no != null and no != ''">no = #{no},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="idCard != null and idCard != ''">id_card = #{idCard},</if>
+            <if test="isCollege != null">is_college = #{isCollege},</if>
+            <if test="address != null and address != ''">address = #{address},</if>
+            <if test="degree != null">degree = #{degree},</if>
+            <if test="graduationDate != null">graduation_date = #{graduationDate},</if>
+            <if test="clazzId != null">clazz_id = #{clazzId},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteStudentByIds">
+    delete
+    from student
+    where id in
+    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+
+    </delete>
+
+
+    <select id="getStudent" resultType="org.example.pojo.Student">
+        select
+            s.*,c.name clazzName
+            from student s
+        left join clazz c
+        on s.clazz_id = c.id
+        <where>
+            <if test="name != null and name !=''">s.name =#{name}</if>
+            <if test="degree != null and degree !=''"> and s.degree =#{degree}</if>
+            <if test="clazzId != null"> and s.clazz_id = #{clazzId}</if>
+        </where>
+
+
+
+    </select>
+
+    <select id="getById" resultType="org.example.pojo.Student">
+        select *
+        from student
+        where id = #{id}
+    </select>
+    <select id="getDegree" resultType="java.util.Map">
+        select
+           ( case degree  when 1 then '初中' when 2 then '高中' when 3 then '大专' when 4 then '本科' when 5 then '硕士' else '博士' end ) name,
+           count(0) value
+            from student
+        group by degree
+        order by value
+    </select>
+    <select id="getStudentData" resultType="java.util.Map">
+
+select
+    c.name name,
+    count(0) data
+    from student s
+left join  clazz c
+on s.clazz_id = c.id
+group by c.name
+order by data
+    </select>
+</mapper>
